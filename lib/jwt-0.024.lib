@@ -1,6 +1,6 @@
 package JWT;
 
-# Libraries
+# Modules
 use strict;
 use CGI":standard";
 use CGI::Carp qw(fatalsToBrowser);
@@ -28,53 +28,77 @@ sub SetHeader {
 }#
 
 
+# Function:     Generates and encodes a JWT
+# Parameter:    Payload in the format of a string/hash/arary(required), key as a string for signature(required), alg is the JWT algorithm type
+# Return:       Returns a valid JWT, otherwise a error hash
 sub SetToken {
 
-    my $payload                     = $_[0] || "null";
-    my $key                         = $_[1] || "";
+    my $payload                     = $_[0] || ();
+    my $key                         = $_[1] || ();
     my $alg                         = $_[2] || $ALG_HS256;
-    
-    # Encode token
-    my $jwt = eval{ encode_jwt( payload => $payload, key => $key, alg => $alg ) };
 
-    # Error handling
-    if (defined $jwt) {
-        # Return encoded token
-        return $jwt;
+    # Required input parameter error handling
+    if (defined $payload && defined $key) {
+        # Encode token
+        my $jwt = eval{ encode_jwt( payload => $payload, key => $key, alg => $alg ) };
+
+        # Error handling
+        if (defined $jwt) {
+            # Return encoded token
+            return $jwt;
+        }
+        else {
+            # Return hash error
+            return {
+                # error => $jwt,
+                message => "The JSON web token could not be set. The JWT could not be encoded.",
+                status => "ERROR"
+            }
+        }
     }
     else {
         # Return hash error
         return {
-            status => "ERROR",
-            message => $key eq "" || $alg eq "" 
-                ? "The token provided could not be created. Either or both the key and alg parameters are empty or null."
-                : "The token provided could not be created. Please provide valid token paramters."
+            message => "The JSON web token could not be set. The input parameters payload and/or key are either null or empty.",
+            status => "ERROR"
         }
     }
-
+    
 }#
 
 
+# Function:     Validates and decodes a token into a readible format
+# Parameters:   token is valid JWT(required), key is used to validate the token(required)
+# Return:       Returns a valid decoded JWT, otherwise a error hash
 sub ValidateToken {
 
-    my $token                   = $_[0] || "";
-    my $key                     = $_[1] || "";
+    my $token                   = $_[0] || ();
+    my $key                     = $_[1] || ();
 
-    # Decode token
-    my $jwt = eval{ decode_jwt(token => $token, key => $key) };
+    # Required input parameter error handling
+    if (defined $token && defined $key) {
+        # Decode token
+        my $jwt = eval{ decode_jwt(token => $token, key => $key) };
 
-    # Error handling
-    if (defined $jwt) {
-        # Return decoded token
-        return $jwt;
+        # Error handling
+        if (defined $jwt) {
+            # Return decoded token
+            return $jwt;
+        }
+        else {
+            # Return hash error
+            return {
+                # error => $jwt,
+                message => "The JSON web token could not be validated. The JWT could not be decoded.",
+                status => "ERROR"
+            }
+        }
     }
     else {
         # Return hash error
         return {
-            status => "ERROR",
-            message => $token eq "" || $key eq "" 
-                ? "The token provided could not be validated. Either or both the token and key parameters are empty or null."
-                : "The token provided could not be validated. Please provide a valid token."
+            message => "The JSON web token could not be validated. The input parameters token and/or key are either null or empty.",
+            status => "ERROR"
         }
     }
 
