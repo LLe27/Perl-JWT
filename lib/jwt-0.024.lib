@@ -1,0 +1,83 @@
+package JWT;
+
+# Libraries
+use strict;
+use CGI":standard";
+use CGI::Carp qw(fatalsToBrowser);
+
+# Dependencies
+use Crypt::JWT ':all';
+
+# Global Variables
+my $ALG_HS256 = 'HS256';
+
+
+sub SetHeader {
+    
+    my $jwt                         = $_[0] || ();
+    my $CGI                         = new CGI;
+
+    # Func parameter handling
+    if (defined $jwt) {
+        print STDOUT "defined";
+    }
+    else {
+        print STDOUT "not defined";
+    }
+    
+}#
+
+
+sub SetToken {
+
+    my $payload                     = $_[0] || "null";
+    my $key                         = $_[1] || "";
+    my $alg                         = $_[2] || $ALG_HS256;
+    
+    # Encode token
+    my $jwt = eval{ encode_jwt( payload => $payload, key => $key, alg => $alg ) };
+
+    # Error handling
+    if (defined $jwt) {
+        # Return encoded token
+        return $jwt;
+    }
+    else {
+        # Return hash error
+        return {
+            status => "ERROR",
+            message => $key eq "" || $alg eq "" 
+                ? "The token provided could not be created. Either or both the key and alg parameters are empty or null."
+                : "The token provided could not be created. Please provide valid token paramters."
+        }
+    }
+
+}#
+
+
+sub ValidateToken {
+
+    my $token                   = $_[0] || "";
+    my $key                     = $_[1] || "";
+
+    # Decode token
+    my $jwt = eval{ decode_jwt(token => $token, key => $key) };
+
+    # Error handling
+    if (defined $jwt) {
+        # Return decoded token
+        return $jwt;
+    }
+    else {
+        # Return hash error
+        return {
+            status => "ERROR",
+            message => $token eq "" || $key eq "" 
+                ? "The token provided could not be validated. Either or both the token and key parameters are empty or null."
+                : "The token provided could not be validated. Please provide a valid token."
+        }
+    }
+
+}#
+
+1
