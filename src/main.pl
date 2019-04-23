@@ -8,16 +8,20 @@ use CGI":standard";
 use CGI::Carp qw(fatalsToBrowser);
 
 # Libraries
-require "../lib/jwt-0.024.lib";
+require "../lib/jwt.lib";
 
 
 sub Main() {
 
     ### SetToken function testing ###
-    print STDOUT "SetToken() function test cases...\n\n";
+    print STDOUT "SetToken() function test cases...\n";
     # JWT returned from successful encoding
     my $jwt = &JWT::SetToken({ name => "Long Le", user => "admin" }, "notsosecret");
-    print STDOUT "Test 1: JWT returned from successful encoding\n$jwt \n\n";
+    print STDOUT "Test 1: JWT returned from successful encoding\n";
+    foreach my $key (sort keys %{ $jwt }) {
+        print STDOUT "$key: $jwt->{$key}\n";
+    }
+    print STDOUT "\n";
 
     # No input parameters
     my $jwt1 = &JWT::SetToken();
@@ -54,11 +58,12 @@ sub Main() {
 
     ### ValidateToken function testing ###
     # Valid token and key
-    print STDOUT "ValidateToken() function test cases...\n\n";
-    my $jwt_validate = &JWT::ValidateToken($jwt, "notsosecret");
+    print STDOUT "ValidateToken() function test cases...\n";
+    my $jwt_validate = &JWT::ValidateToken($jwt->{token}, "notsosecret");
+    my $jwt_token1 = $jwt_validate->{token};
     print STDOUT "Test 6: Valid token and key\n";
-    foreach my $key (sort keys %{ $jwt_validate }) {
-        print STDOUT "$key: $jwt_validate->{$key}\n";
+    foreach my $key (sort keys %{ $jwt_token1 }) {
+        print STDOUT "$key: $jwt_token1->{$key}\n";
     }
     print STDOUT "\n";
 
@@ -101,7 +106,7 @@ sub Main() {
         print STDOUT "$key: $jwt_validate5->{$key}\n";
     }
     print STDOUT "\n\n";
-    ### ValidateToken function testing END###
+    ### ValidateToken function testing END ###
 
 };
 

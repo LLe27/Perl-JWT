@@ -1,3 +1,4 @@
+# Uses Crypt::Jwt Version 0.024
 package JWT;
 
 # Modules
@@ -11,7 +12,7 @@ use Crypt::JWT ':all';
 # Global Variables
 my $ALG_HS256 = 'HS256';
 
-
+# TODO: Develop
 sub SetHeader {
     
     my $jwt                         = $_[0] || ();
@@ -25,7 +26,7 @@ sub SetHeader {
         print STDOUT "not defined";
     }
     
-}#
+} #
 
 
 # Function:     Generates and encodes a JWT
@@ -33,19 +34,23 @@ sub SetHeader {
 # Return:       Returns a valid JWT, otherwise a error hash
 sub SetToken {
 
-    my $payload                     = $_[0] || ();
-    my $key                         = $_[1] || ();
-    my $alg                         = $_[2] || $ALG_HS256;
+    my $payload                     = $_[0] || ();  # Required
+    my $key                         = $_[1] || ();  # Required
+    my $alg                         = $_[2] || $ALG_HS256;  # Optional
 
     # Required input parameter error handling
     if (defined $payload && defined $key) {
         # Encode token
-        my $jwt = eval{ encode_jwt( payload => $payload, key => $key, alg => $alg ) };
+        my $jwt = encode_jwt( payload => $payload, key => $key, alg => $alg );
 
         # Error handling
         if (defined $jwt) {
-            # Return encoded token
-            return $jwt;
+            # Return success
+            return {
+                token => $jwt,
+                message => "The JSON web token has been set.",
+                status => "OK"
+            };
         }
         else {
             # Return hash error
@@ -82,8 +87,12 @@ sub ValidateToken {
 
         # Error handling
         if (defined $jwt) {
-            # Return decoded token
-            return $jwt;
+            # Return success
+            return {
+                token => $jwt,
+                message => "The JSON web token is valid.",
+                status => "OK"
+            };
         }
         else {
             # Return hash error
